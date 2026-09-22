@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-roblox-darker text-white font-sans;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+  
+  .btn-primary {
+    @apply bg-roblox-red hover:bg-roblox-red/90 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105;
+  }
+  
+  .btn-secondary {
+    @apply bg-roblox-gray hover:bg-roblox-gray/80 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200;
+  }
+  
+  .panel {
+    @apply bg-roblox-dark border border-roblox-gray rounded-lg overflow-hidden;
+  }
+  
+  .panel-header {
+    @apply bg-roblox-gray px-4 py-2 font-semibold text-sm border-b border-roblox-gray;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-roblox-dark;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-roblox-gray rounded-full;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-roblox-light;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-roblox-red to-orange-500;
+  }
+}

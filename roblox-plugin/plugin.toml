@@ -1,0 +1,9 @@
+name = "BlockForge"
+version = "1.0.0"
+id = "com.blockforge.builder"
+description = "Connect Roblox Studio to BlockForge web app for AI-powered game development"
+author = "BlockForge Team"
+
+[plugin]
+main = "src/init.lua"
+toolbar = "BlockForge"

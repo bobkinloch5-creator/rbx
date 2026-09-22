@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { useBuilderStore } from '../../hooks/useBuilderStore';
-import { FileCode, Save, Download } from 'lucide-react';
+import { FileCode, Save } from 'lucide-react';
 
 export default function ScriptEditor() {
   const { currentScript, setCurrentScript, sendCommand } = useBuilderStore();

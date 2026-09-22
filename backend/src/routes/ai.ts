@@ -9,7 +9,7 @@ export const aiRouter = Router();
 // Generate AI response for chat
 aiRouter.post('/chat', async (req, res) => {
   try {
-    const { messages, sessionId, provider } = req.body;
+    const { messages, sessionId } = req.body;
 
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Invalid messages format' });
@@ -21,8 +21,7 @@ aiRouter.post('/chat', async (req, res) => {
 
     const response = await generateAIResponse({
       messages: messages as AIMessage[],
-      projectStructure,
-      provider
+      projectStructure
     });
 
     res.json(response);

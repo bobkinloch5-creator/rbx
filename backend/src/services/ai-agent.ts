@@ -1,13 +1,11 @@
 import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
 import { AIMessage, ProjectStructure, BuildCommand } from '../types/index.js';
 import { logger } from './logger.js';
 
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ 
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.OPENAI_API_BASE || 'https://api.openai.com/v1'
 }) : null;
-const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
 
 const SYSTEM_PROMPT = `You are an expert Roblox game developer and AI assistant specializing in building games through natural language instructions. You have deep knowledge of:
 
@@ -70,7 +68,6 @@ Always provide executable JSON commands for building in Roblox Studio.`;
 export interface AIRequest {
   messages: AIMessage[];
   projectStructure?: ProjectStructure;
-  provider?: 'openai' | 'anthropic';
 }
 
 export interface AIResponse {
@@ -80,22 +77,16 @@ export interface AIResponse {
 }
 
 export async function generateAIResponse(request: AIRequest): Promise<AIResponse> {
-  const provider = request.provider || process.env.AI_PROVIDER || 'openai';
-  
-  // Add project context to the system prompt if available
   let contextualPrompt = SYSTEM_PROMPT;
   if (request.projectStructure) {
     contextualPrompt += `\n\nCurrent Project Context:\n${JSON.stringify(request.projectStructure, null, 2)}`;
   }
 
   try {
-    if (provider === 'anthropic' && anthropic) {
-      return await generateAnthropicResponse(contextualPrompt, request.messages);
-    } else if (openai) {
-      return await generateOpenAIResponse(contextualPrompt, request.messages);
-    } else {
+    if (!openai) {
       throw new Error('No AI provider configured');
     }
+    return await generateOpenAIResponse(contextualPrompt, request.messages);
   } catch (error) {
     logger.error('AI generation error:', error);
     throw error;
@@ -103,13 +94,13 @@ export async function generateAIResponse(request: AIRequest): Promise<AIResponse
 }
 
 async function generateOpenAIResponse(systemPrompt: string, messages: AIMessage[]): Promise<AIResponse> {
-  if (!openai) throw new Error('OpenAI not configured');
+  if (!openai) throw new Error('AI provider not configured');
 
   const completion = await openai.chat.completions.create({
-    model: 'motapis-claude/claude-opus-5',
+    model: process.env.AI_MODEL || 'gpt-4-turbo-preview',
     messages: [
       { role: 'system', content: systemPrompt },
-      ...messages.map(m => ({ role: m.role, content: m.content }))
+      ...messages.map(m => ({ role: m.role as 'user' | 'assistant' | 'system', content: m.content }))
     ],
     temperature: 0.7,
     max_tokens: 8000
@@ -119,25 +110,7 @@ async function generateOpenAIResponse(systemPrompt: string, messages: AIMessage[
   return parseAIResponse(content);
 }
 
-async function generateAnthropicResponse(systemPrompt: string, messages: AIMessage[]): Promise<AIResponse> {
-  if (!anthropic) throw new Error('Anthropic not configured');
-
-  const response = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: 4096,
-    system: systemPrompt,
-    messages: messages.map(m => ({
-      role: m.role === 'user' ? 'user' : 'assistant',
-      content: m.content
-    }))
-  });
-
-  const content = response.content[0].type === 'text' ? response.content[0].text : '';
-  return parseAIResponse(content);
-}
-
 function parseAIResponse(content: string): AIResponse {
-  // Try to extract JSON commands from the response
   const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/);
   let commands: BuildCommand[] | undefined;
 
@@ -145,7 +118,7 @@ function parseAIResponse(content: string): AIResponse {
     try {
       const parsed = JSON.parse(jsonMatch[1]);
       commands = Array.isArray(parsed) ? parsed : [parsed];
-    } catch (e) {
+    } catch {
       logger.warn('Failed to parse JSON commands from AI response');
     }
   }
@@ -185,8 +158,7 @@ export async function suggestImprovements(projectStructure: ProjectStructure): P
   ];
 
   const response = await generateAIResponse({ messages, projectStructure });
-  
-  // Extract bullet points or numbered list
+
   const suggestions = response.message
     .split('\n')
     .filter(line => /^[\d\-\*]/.test(line.trim()))

@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, Box, Sphere, Cylinder } from '@react-three/drei';
 import { useBuilderStore } from '../../hooks/useBuilderStore';
-import { Cube } from 'lucide-react';
+import { Box as CubeIcon } from 'lucide-react';
 
 function Scene() {
   const { projectStructure } = useBuilderStore();
@@ -83,7 +83,7 @@ export default function PreviewPanel() {
   return (
     <div className="h-full flex flex-col bg-roblox-dark">
       <div className="panel-header flex items-center space-x-2">
-        <Cube className="w-4 h-4" />
+        <CubeIcon className="w-4 h-4" />
         <span>3D Preview</span>
       </div>
 
@@ -95,7 +95,7 @@ export default function PreviewPanel() {
         ) : (
           <div className="h-full flex items-center justify-center text-roblox-light">
             <div className="text-center">
-              <Cube className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <CubeIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <p>Connect plugin to view your game</p>
             </div>
           </div>

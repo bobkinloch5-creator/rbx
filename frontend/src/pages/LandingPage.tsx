@@ -3,14 +3,10 @@ import { motion } from 'framer-motion';
 import { 
   Sparkles, 
   Code2, 
-  Boxes, 
   Zap, 
-  Brain, 
-  TestTube2,
   ArrowRight,
-  Check,
   MessageSquare,
-  Cube,
+  Box,
   FileCode,
   Search
 } from 'lucide-react';
@@ -25,7 +21,7 @@ export default function LandingPage() {
       description: 'Just describe what you want to build, and watch the AI create it in real-time inside Roblox Studio.'
     },
     {
-      icon: <Cube className="w-6 h-6" />,
+      icon: <Box className="w-6 h-6" />,
       title: '3D Preview & Explorer',
       description: 'Visualize your game in 3D, navigate the object hierarchy, and modify properties with an intuitive interface.'
     },

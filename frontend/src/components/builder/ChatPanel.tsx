@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useBuilderStore } from '../../hooks/useBuilderStore';
 import { Send, Loader2, Sparkles, Lightbulb } from 'lucide-react';
 import { formatTimestamp } from '../../lib/utils';
+import mascotImg from '../../assets/images/mascot.png';
 
 export default function ChatPanel() {
   const [input, setInput] = useState('');
@@ -52,7 +53,7 @@ export default function ChatPanel() {
       <div className="panel-header flex items-center justify-between py-2.5 px-3">
         <div className="flex items-center space-x-2">
           <img 
-            src="/images/mascot.png" 
+            src={mascotImg} 
             alt="Bolt AI" 
             className="w-5 h-5 rounded-full object-cover border border-cyan-400"
           />
@@ -69,7 +70,7 @@ export default function ChatPanel() {
           <div className="text-center text-roblox-light py-6 px-2">
             <div className="relative inline-block mb-3">
               <img 
-                src="/images/mascot.png" 
+                src={mascotImg} 
                 alt="Bolt" 
                 className="w-16 h-16 rounded-2xl object-cover border-2 border-white/20 shadow-xl mx-auto"
               />
@@ -113,7 +114,7 @@ export default function ChatPanel() {
           >
             {msg.role !== 'user' && (
               <img 
-                src="/images/mascot.png" 
+                src={mascotImg} 
                 alt="Bolt" 
                 className="w-6 h-6 rounded-full object-cover border border-cyan-400 mt-1 flex-shrink-0"
               />
@@ -137,7 +138,7 @@ export default function ChatPanel() {
         {isAIThinking && (
           <div className="flex justify-start items-center space-x-2">
             <img 
-              src="/images/mascot.png" 
+              src={mascotImg} 
               alt="Bolt Thinking" 
               className="w-6 h-6 rounded-full object-cover border border-cyan-400 flex-shrink-0 animate-pulse"
             />

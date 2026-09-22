@@ -18,6 +18,14 @@ import {
   ChevronRight
 } from 'lucide-react';
 
+// Direct asset imports for guaranteed Vite bundling & zero 404s
+import logoImg from '../assets/images/logo.png';
+import mascotImg from '../assets/images/mascot.png';
+import heroImg from '../assets/images/hero.png';
+import builderShowcaseImg from '../assets/images/builder-showcase.png';
+import templateObbyImg from '../assets/images/template-obby.png';
+import templateTownImg from '../assets/images/template-town.png';
+
 export default function LandingPage() {
   const navigate = useNavigate();
 
@@ -33,7 +41,7 @@ export default function LandingPage() {
       title: 'Rainbow Cloud Obby',
       tag: 'Most Popular',
       category: 'Obstacle Course',
-      image: '/images/template-obby.png',
+      image: templateObbyImg,
       badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
       description: '10 progressively challenging floating neon stages with cloud checkpoints, animated coin rewards, and leaderboard.',
       prompt: 'Create a vibrant 10-stage rainbow cloud parkour obby with neon platforms, checkpoints, and coin rewards.'
@@ -42,7 +50,7 @@ export default function LandingPage() {
       title: 'Cozy Town & Pet Shop',
       tag: 'Trending RPG',
       category: 'Roleplay Simulator',
-      image: '/images/template-town.png',
+      image: templateTownImg,
       badgeColor: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
       description: 'Charming neighborhood with customizable cottages, working pet adoption shop, interactive NPC dialogues, and currency system.',
       prompt: 'Create a cozy town roleplay game with a pet shop, currency economy, customizable houses, and friendly NPCs.'
@@ -51,7 +59,7 @@ export default function LandingPage() {
       title: 'Fantasy Studio Island',
       tag: 'Adventure',
       category: 'World Explorer',
-      image: '/images/builder-showcase.png',
+      image: builderShowcaseImg,
       badgeColor: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
       description: 'Floating sky realm with castle spires, slide ramps, magical particle fountains, and real-time Roblox Studio sync.',
       prompt: 'Build a magical floating island kingdom with castles, parkour slides, and particle effect shrines.'
@@ -131,7 +139,6 @@ export default function LandingPage() {
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-red-600/15 rounded-full blur-[140px] animate-pulse" />
         <div className="absolute top-1/3 -right-40 w-[550px] h-[550px] bg-cyan-500/15 rounded-full blur-[150px]" />
         <div className="absolute -bottom-40 left-1/3 w-[650px] h-[650px] bg-purple-600/15 rounded-full blur-[160px]" />
-        {/* Subtle grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 
@@ -141,7 +148,7 @@ export default function LandingPage() {
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="relative group">
               <img 
-                src="/images/logo.png" 
+                src={logoImg} 
                 alt="BlockForge Logo" 
                 className="w-10 h-10 rounded-xl object-cover shadow-lg shadow-roblox-red/25 border border-white/20 group-hover:scale-105 transition-transform" 
               />
@@ -191,7 +198,7 @@ export default function LandingPage() {
             {/* Friendly Mascot Badge */}
             <div className="inline-flex items-center space-x-3 px-4 py-2 bg-slate-900/80 border border-white/10 rounded-full mb-8 shadow-xl backdrop-blur-md hover:border-roblox-red/40 transition-colors">
               <img 
-                src="/images/mascot.png" 
+                src={mascotImg} 
                 alt="Bolt AI Mascot" 
                 className="w-7 h-7 rounded-full object-cover border border-cyan-400/50 shadow-sm"
               />
@@ -262,7 +269,7 @@ export default function LandingPage() {
             <div className="relative rounded-3xl p-2 sm:p-3 bg-gradient-to-b from-white/20 via-white/5 to-transparent shadow-2xl backdrop-blur-2xl">
               <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-white/10 group">
                 <img 
-                  src="/images/hero.png" 
+                  src={heroImg} 
                   alt="BlockForge AI and Roblox Avatars Building Together" 
                   className="w-full h-auto object-cover max-h-[640px] transition-transform duration-700 group-hover:scale-[1.01]" 
                 />
@@ -392,7 +399,7 @@ export default function LandingPage() {
               <div className="lg:col-span-5 text-center">
                 <div className="relative inline-block">
                   <img 
-                    src="/images/mascot.png" 
+                    src={mascotImg} 
                     alt="Bolt AI Mascot" 
                     className="w-72 h-72 sm:w-80 sm:h-80 mx-auto rounded-3xl object-cover shadow-2xl border-2 border-white/20 hover:scale-105 transition-transform duration-300"
                   />
@@ -526,7 +533,7 @@ export default function LandingPage() {
           <div className="relative rounded-3xl p-10 sm:p-16 bg-gradient-to-r from-roblox-red/20 via-orange-500/10 to-purple-600/20 border border-white/15 text-center overflow-hidden backdrop-blur-2xl shadow-2xl">
             <div className="relative z-10 max-w-2xl mx-auto">
               <img 
-                src="/images/logo.png" 
+                src={logoImg} 
                 alt="BlockForge" 
                 className="w-16 h-16 rounded-2xl mx-auto mb-6 shadow-xl shadow-roblox-red/40 border border-white/20"
               />
@@ -554,7 +561,7 @@ export default function LandingPage() {
       <footer className="relative py-12 px-6 border-t border-white/10 z-10 text-slate-400 text-sm">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center space-x-3">
-            <img src="/images/logo.png" alt="BlockForge" className="w-7 h-7 rounded-lg object-cover" />
+            <img src={logoImg} alt="BlockForge" className="w-7 h-7 rounded-lg object-cover" />
             <span className="font-bold text-white">BlockForge AI</span>
             <span>— The friendly AI Roblox game creator.</span>
           </div>

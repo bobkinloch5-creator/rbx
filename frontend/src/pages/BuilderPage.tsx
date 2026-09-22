@@ -11,7 +11,6 @@ import ScriptEditor from '../components/builder/ScriptEditor';
 import ToolboxPanel from '../components/builder/ToolboxPanel';
 import TestConsole from '../components/builder/TestConsole';
 import { 
-  Boxes, 
   Home, 
   Link2, 
   Link2Off,
@@ -90,8 +89,8 @@ export default function BuilderPage() {
             <Home className="w-5 h-5" />
           </button>
           
-          <div className="flex items-center space-x-2">
-            <Boxes className="w-6 h-6 text-roblox-red" />
+          <div className="flex items-center space-x-2.5">
+            <img src="/images/logo.png" alt="BlockForge Logo" className="w-6 h-6 rounded-md object-cover shadow-sm" />
             <span className="text-lg font-bold">BlockForge</span>
           </div>
 

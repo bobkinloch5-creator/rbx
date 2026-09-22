@@ -17,6 +17,17 @@ interface RobloxAsset {
   price?: number;
 }
 
+function getRobloxHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (process.env.ROBLOX_API_KEY) {
+    headers['x-api-key'] = process.env.ROBLOX_API_KEY;
+  }
+  if (process.env.ROBLOX_COOKIE) {
+    headers['Cookie'] = `.ROBLOSECURITY=${process.env.ROBLOX_COOKIE}`;
+  }
+  return headers;
+}
+
 // Search Roblox catalog for assets
 assetsRouter.get('/search', async (req, res) => {
   try {
@@ -34,7 +45,7 @@ assetsRouter.get('/search', async (req, res) => {
       limit: Math.min(Number(limit), 100)
     };
 
-    const response = await axios.get(searchUrl, { params });
+    const response = await axios.get(searchUrl, { params, headers: getRobloxHeaders() });
     
     const assets = response.data.data.map((item: any) => ({
       id: item.id,
@@ -59,7 +70,7 @@ assetsRouter.get('/details/:assetId', async (req, res) => {
     const { assetId } = req.params;
 
     const detailsUrl = `https://economy.roblox.com/v2/assets/${assetId}/details`;
-    const response = await axios.get(detailsUrl);
+    const response = await axios.get(detailsUrl, { headers: getRobloxHeaders() });
 
     const asset = response.data;
     res.json({
@@ -92,7 +103,7 @@ assetsRouter.get('/featured', async (req, res) => {
       limit: Math.min(Number(limit), 100)
     };
 
-    const response = await axios.get(searchUrl, { params });
+    const response = await axios.get(searchUrl, { params, headers: getRobloxHeaders() });
     
     const assets = response.data.data.map((item: any) => ({
       id: item.id,

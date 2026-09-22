@@ -3,6 +3,46 @@ import { logger } from './logger.js';
 import { PluginSession, BuildCommand, ProjectStructure } from '../types/index.js';
 
 const activeSessions = new Map<string, PluginSession>();
+const pendingCommands = new Map<string, BuildCommand[]>();
+
+export function registerPluginSession(sessionId: string, userId: string): PluginSession {
+  const existing = activeSessions.get(sessionId);
+  const session: PluginSession = existing || {
+    sessionId,
+    userId,
+    connected: true,
+    lastActivity: Date.now()
+  };
+
+  session.connected = true;
+  session.lastActivity = Date.now();
+  activeSessions.set(sessionId, session);
+  if (!pendingCommands.has(sessionId)) pendingCommands.set(sessionId, []);
+  return session;
+}
+
+export function queueBuildCommand(command: BuildCommand): void {
+  const commands = pendingCommands.get(command.sessionId) || [];
+  commands.push(command);
+  pendingCommands.set(command.sessionId, commands);
+}
+
+export function takeBuildCommands(sessionId: string): BuildCommand[] {
+  const commands = pendingCommands.get(sessionId) || [];
+  pendingCommands.set(sessionId, []);
+  const session = activeSessions.get(sessionId);
+  if (session) session.lastActivity = Date.now();
+  return commands;
+}
+
+export function updateProjectStructure(sessionId: string, structure: ProjectStructure): boolean {
+  const session = activeSessions.get(sessionId);
+  if (!session) return false;
+  session.projectStructure = structure;
+  session.connected = true;
+  session.lastActivity = Date.now();
+  return true;
+}
 
 export function setupWebSocketHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
@@ -10,13 +50,7 @@ export function setupWebSocketHandlers(io: Server) {
 
     // Plugin connection from Roblox Studio
     socket.on('plugin:connect', (data: { sessionId: string; userId: string }) => {
-      const session: PluginSession = {
-        sessionId: data.sessionId,
-        userId: data.userId,
-        connected: true,
-        lastActivity: Date.now()
-      };
-      activeSessions.set(data.sessionId, session);
+      const session = registerPluginSession(data.sessionId, data.userId);
       socket.join(data.sessionId);
       logger.info(`Plugin connected: ${data.sessionId}`);
       socket.emit('plugin:connected', { success: true, sessionId: data.sessionId });
@@ -47,6 +81,7 @@ export function setupWebSocketHandlers(io: Server) {
     // Build command from web app to plugin
     socket.on('web:build-command', (command: BuildCommand) => {
       logger.info(`Build command: ${command.type} for session: ${command.sessionId}`);
+      queueBuildCommand(command);
       // Forward to plugin
       io.to(command.sessionId).emit('plugin:execute-command', command);
     });

@@ -8,7 +8,8 @@ local RunService = game:GetService("RunService")
 
 -- Configuration
 local CONFIG = {
-	SERVER_URL = "http://localhost:3001",
+	-- Replace this with the public URL of your deployed backend.
+	SERVER_URL = "https://YOUR-BACKEND-DOMAIN.example.com",
 	WS_POLL_INTERVAL = 0.5,
 	PLUGIN_SECRET = "roblox-ai-builder-secure-2024",
 	SESSION_TIMEOUT = 300

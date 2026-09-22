@@ -7,7 +7,7 @@ local RunService = game:GetService("RunService")
 local TestRunner = {}
 
 -- Configuration
-local SERVER_URL = "http://localhost:3001"
+local SERVER_URL = "https://YOUR-BACKEND-DOMAIN.example.com"
 
 -- Collect all test errors from output
 local testErrors = {}

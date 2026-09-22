@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wsService } from '../lib/websocket';
 import { useBuilderStore } from '../hooks/useBuilderStore';
@@ -12,25 +12,69 @@ import ToolboxPanel from '../components/builder/ToolboxPanel';
 import TestConsole from '../components/builder/TestConsole';
 import logoImg from '../assets/images/logo.png';
 import mascotImg from '../assets/images/mascot.png';
-import { 
-  Home, 
-  Link2, 
-  Link2Off, 
-  FolderTree, 
-  Package, 
-  Settings2, 
-  Bot, 
-  Box, 
-  FileCode, 
-  Columns, 
-  Terminal, 
-  Copy, 
-  Check, 
-  PanelLeftClose, 
+import {
+  Home,
+  Link2,
+  Link2Off,
+  FolderTree,
+  Package,
+  Settings2,
+  Bot,
+  Box,
+  FileCode,
+  Columns,
+  Terminal,
+  Copy,
+  Check,
+  PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen
 } from 'lucide-react';
+
+// Drag-resize hook
+function usePanelResize(
+  initialWidth: number,
+  minWidth: number,
+  maxWidth: number,
+  side: 'left' | 'right'
+) {
+  const [width, setWidth] = useState(initialWidth);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const startWidth = useRef(initialWidth);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    startX.current = e.clientX;
+    startWidth.current = width;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return;
+      const delta = side === 'left'
+        ? ev.clientX - startX.current
+        : startX.current - ev.clientX;
+      const newWidth = Math.min(maxWidth, Math.max(minWidth, startWidth.current + delta));
+      setWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }, [width, minWidth, maxWidth, side]);
+
+  return { width, onMouseDown };
+}
 
 export default function BuilderPage() {
   const navigate = useNavigate();
@@ -42,13 +86,17 @@ export default function BuilderPage() {
   const [showTestConsole, setShowTestConsole] = useState(false);
   const [copiedSession, setCopiedSession] = useState(false);
   const [mobileTab, setMobileTab] = useState<'chat' | 'preview' | 'script' | 'explorer' | 'toolbox'>('chat');
-  
-  const { 
-    sessionId, 
+
+  // Resizable panels
+  const leftPanel = usePanelResize(288, 180, 520, 'left');
+  const rightPanel = usePanelResize(360, 260, 600, 'right');
+
+  const {
+    sessionId,
     isPluginConnected,
     selectedInstance,
     projectStructure,
-    setSessionId, 
+    setSessionId,
     setPluginConnected,
     setProjectStructure,
     addTestResult
@@ -57,11 +105,11 @@ export default function BuilderPage() {
   useEffect(() => {
     const storedSessionId = localStorage.getItem('roblox-ai-builder-session');
     const newSessionId = storedSessionId || generateSessionId();
-    
+
     if (!storedSessionId) {
       localStorage.setItem('roblox-ai-builder-session', newSessionId);
     }
-    
+
     setSessionId(newSessionId);
     wsService.connect(newSessionId, false);
 
@@ -91,7 +139,6 @@ export default function BuilderPage() {
     };
   }, []);
 
-  // Auto-switch to properties tab when an instance is selected
   useEffect(() => {
     if (selectedInstance) {
       setActiveRightTab('properties');
@@ -120,12 +167,12 @@ export default function BuilderPage() {
           >
             <Home className="w-4 h-4" />
           </button>
-          
+
           <div className="flex items-center space-x-2.5">
-            <img 
-              src={logoImg} 
-              alt="BlockForge Logo" 
-              className="w-7 h-7 rounded-lg object-cover shadow-md shadow-roblox-red/20 border border-white/10" 
+            <img
+              src={logoImg}
+              alt="BlockForge Logo"
+              className="w-7 h-7 rounded-lg object-cover shadow-md shadow-roblox-red/20 border border-white/10"
             />
             <div className="hidden sm:flex flex-col">
               <span className="text-sm font-black tracking-tight leading-none text-white">BlockForge</span>
@@ -150,13 +197,13 @@ export default function BuilderPage() {
           )}
         </div>
 
-        {/* Center View Mode Switcher (Desktop) */}
+        {/* Center View Mode Switcher */}
         <div className="hidden md:flex items-center bg-slate-950/80 p-1 rounded-xl border border-white/10 space-x-1 shadow-inner">
           <button
             onClick={() => setCenterViewMode('preview')}
             className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-              centerViewMode === 'preview' 
-                ? 'bg-gradient-to-r from-roblox-red to-red-600 text-white shadow' 
+              centerViewMode === 'preview'
+                ? 'bg-gradient-to-r from-roblox-red to-red-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
           >
@@ -167,8 +214,8 @@ export default function BuilderPage() {
           <button
             onClick={() => setCenterViewMode('split')}
             className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-              centerViewMode === 'split' 
-                ? 'bg-gradient-to-r from-roblox-red to-red-600 text-white shadow' 
+              centerViewMode === 'split'
+                ? 'bg-gradient-to-r from-roblox-red to-red-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
           >
@@ -179,8 +226,8 @@ export default function BuilderPage() {
           <button
             onClick={() => setCenterViewMode('script')}
             className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-              centerViewMode === 'script' 
-                ? 'bg-gradient-to-r from-roblox-red to-red-600 text-white shadow' 
+              centerViewMode === 'script'
+                ? 'bg-gradient-to-r from-roblox-red to-red-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
           >
@@ -191,12 +238,11 @@ export default function BuilderPage() {
 
         {/* Right Actions & Status */}
         <div className="flex items-center space-x-2.5">
-          {/* Studio Link Indicator */}
-          <div 
-            title={isPluginConnected ? "Roblox Studio plugin is connected and syncing" : "Waiting for Roblox Studio plugin link"}
+          <div
+            title={isPluginConnected ? 'Roblox Studio plugin is connected' : 'Waiting for Roblox Studio plugin'}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-              isPluginConnected 
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' 
+              isPluginConnected
+                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
                 : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
             }`}
           >
@@ -213,7 +259,6 @@ export default function BuilderPage() {
             )}
           </div>
 
-          {/* Console Drawer Toggle */}
           <button
             onClick={() => setShowTestConsole(!showTestConsole)}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
@@ -226,18 +271,17 @@ export default function BuilderPage() {
             <span className="hidden md:inline">Console</span>
           </button>
 
-          {/* Sidebar Toggle Buttons */}
           <div className="hidden lg:flex items-center space-x-1 border-l border-white/10 pl-2">
             <button
               onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
-              title={isLeftCollapsed ? "Open Explorer/Toolbox" : "Collapse Explorer/Toolbox"}
+              title={isLeftCollapsed ? 'Open Explorer/Toolbox' : 'Collapse Explorer/Toolbox'}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
             >
               {isLeftCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setIsRightCollapsed(!isRightCollapsed)}
-              title={isRightCollapsed ? "Open Bolt AI/Properties" : "Collapse Bolt AI/Properties"}
+              title={isRightCollapsed ? 'Open Bolt AI/Properties' : 'Collapse Bolt AI/Properties'}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
             >
               {isRightCollapsed ? <PanelRightOpen className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
@@ -248,9 +292,13 @@ export default function BuilderPage() {
 
       {/* Main Workspace Area */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Sidebar: Tabbed Explorer & Toolbox */}
+
+        {/* LEFT SIDEBAR — resizable */}
         {!isLeftCollapsed && (
-          <aside className="w-72 md:w-80 flex flex-col bg-slate-900/95 border-r border-white/10 flex-shrink-0 z-10 hidden lg:flex">
+          <aside
+            className="flex flex-col bg-slate-900/95 border-r border-white/10 flex-shrink-0 z-10 hidden lg:flex relative"
+            style={{ width: leftPanel.width }}
+          >
             {/* Tab Header */}
             <div className="flex border-b border-white/10 p-1.5 bg-slate-950/60 gap-1">
               <button
@@ -287,33 +335,44 @@ export default function BuilderPage() {
             <div className="flex-1 overflow-hidden">
               {activeLeftTab === 'explorer' ? <ExplorerPanel /> : <ToolboxPanel />}
             </div>
+
+            {/* Drag Handle — RIGHT edge of left panel */}
+            <div
+              onMouseDown={leftPanel.onMouseDown}
+              className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize z-30 group"
+              title="Drag to resize panel"
+            >
+              <div className="w-full h-full bg-transparent group-hover:bg-roblox-red/40 transition-colors" />
+              {/* Visual indicator dots */}
+              <div className="absolute top-1/2 -translate-y-1/2 right-0 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="w-1 h-1 rounded-full bg-roblox-red/80 mx-auto" />
+                ))}
+              </div>
+            </div>
           </aside>
         )}
 
-        {/* Center Main Stage (3D Viewport & Script Editor) */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-slate-950 relative">
-          {/* Top Half: 3D Viewport */}
+        {/* CENTER — 3D Viewport & Script Editor */}
+        <main className="flex-1 flex flex-col overflow-hidden bg-slate-950 relative min-w-0">
           {(centerViewMode === 'split' || centerViewMode === 'preview') && (
             <div className={`${centerViewMode === 'split' ? 'flex-[1.2]' : 'flex-1'} relative overflow-hidden bg-slate-950`}>
               <PreviewPanel />
             </div>
           )}
 
-          {/* Divider in Split Mode */}
           {centerViewMode === 'split' && (
             <div className="h-1 bg-slate-900 border-y border-white/10 flex items-center justify-center">
               <div className="w-8 h-0.5 bg-white/20 rounded-full" />
             </div>
           )}
 
-          {/* Bottom Half: Script Editor */}
           {(centerViewMode === 'split' || centerViewMode === 'script') && (
             <div className={`${centerViewMode === 'split' ? 'flex-1' : 'flex-1'} overflow-hidden bg-slate-900/50`}>
               <ScriptEditor />
             </div>
           )}
 
-          {/* Test Console Drawer */}
           {showTestConsole && (
             <div className="absolute bottom-0 left-0 right-0 h-64 border-t border-white/15 bg-slate-900 shadow-2xl z-20 flex flex-col">
               <TestConsole onClose={() => setShowTestConsole(false)} />
@@ -321,9 +380,26 @@ export default function BuilderPage() {
           )}
         </main>
 
-        {/* Right Sidebar: Tabbed Bolt AI & Properties */}
+        {/* RIGHT SIDEBAR — resizable */}
         {!isRightCollapsed && (
-          <aside className="w-80 md:w-96 flex flex-col bg-slate-900/95 border-l border-white/10 flex-shrink-0 z-10 hidden xl:flex">
+          <aside
+            className="flex flex-col bg-slate-900/95 border-l border-white/10 flex-shrink-0 z-10 hidden xl:flex relative"
+            style={{ width: rightPanel.width }}
+          >
+            {/* Drag Handle — LEFT edge of right panel */}
+            <div
+              onMouseDown={rightPanel.onMouseDown}
+              className="absolute top-0 left-0 w-1.5 h-full cursor-col-resize z-30 group"
+              title="Drag to resize panel"
+            >
+              <div className="w-full h-full bg-transparent group-hover:bg-roblox-red/40 transition-colors" />
+              <div className="absolute top-1/2 -translate-y-1/2 left-0 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="w-1 h-1 rounded-full bg-roblox-red/80 mx-auto" />
+                ))}
+              </div>
+            </div>
+
             {/* Tab Header */}
             <div className="flex border-b border-white/10 p-1.5 bg-slate-950/60 gap-1">
               <button
@@ -362,60 +438,29 @@ export default function BuilderPage() {
         )}
       </div>
 
-      {/* Mobile/Tablet Adaptive Bottom Navigation Bar */}
+      {/* Mobile Bottom Nav */}
       <div className="lg:hidden h-14 bg-slate-900 border-t border-white/10 flex items-center justify-around px-2 z-30 flex-shrink-0">
-        <button
-          onClick={() => setMobileTab('preview')}
-          className={`flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg text-[10px] font-semibold ${
-            mobileTab === 'preview' ? 'text-roblox-red' : 'text-slate-400'
-          }`}
-        >
-          <Box className="w-4 h-4" />
-          <span>3D View</span>
-        </button>
-
-        <button
-          onClick={() => setMobileTab('chat')}
-          className={`flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg text-[10px] font-semibold ${
-            mobileTab === 'chat' ? 'text-roblox-red' : 'text-slate-400'
-          }`}
-        >
-          <Bot className="w-4 h-4" />
-          <span>Bolt AI</span>
-        </button>
-
-        <button
-          onClick={() => setMobileTab('script')}
-          className={`flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg text-[10px] font-semibold ${
-            mobileTab === 'script' ? 'text-roblox-red' : 'text-slate-400'
-          }`}
-        >
-          <FileCode className="w-4 h-4" />
-          <span>Script</span>
-        </button>
-
-        <button
-          onClick={() => setMobileTab('explorer')}
-          className={`flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg text-[10px] font-semibold ${
-            mobileTab === 'explorer' ? 'text-roblox-red' : 'text-slate-400'
-          }`}
-        >
-          <FolderTree className="w-4 h-4" />
-          <span>Explorer</span>
-        </button>
-
-        <button
-          onClick={() => setMobileTab('toolbox')}
-          className={`flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg text-[10px] font-semibold ${
-            mobileTab === 'toolbox' ? 'text-roblox-red' : 'text-slate-400'
-          }`}
-        >
-          <Package className="w-4 h-4" />
-          <span>Toolbox</span>
-        </button>
+        {[
+          { tab: 'preview' as const, icon: <Box className="w-4 h-4" />, label: '3D View' },
+          { tab: 'chat' as const, icon: <Bot className="w-4 h-4" />, label: 'Bolt AI' },
+          { tab: 'script' as const, icon: <FileCode className="w-4 h-4" />, label: 'Script' },
+          { tab: 'explorer' as const, icon: <FolderTree className="w-4 h-4" />, label: 'Explorer' },
+          { tab: 'toolbox' as const, icon: <Package className="w-4 h-4" />, label: 'Toolbox' },
+        ].map(({ tab, icon, label }) => (
+          <button
+            key={tab}
+            onClick={() => setMobileTab(tab)}
+            className={`flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg text-[10px] font-semibold ${
+              mobileTab === tab ? 'text-roblox-red' : 'text-slate-400'
+            }`}
+          >
+            {icon}
+            <span>{label}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Mobile Active Tab View Overlays */}
+      {/* Mobile Overlays */}
       <div className="lg:hidden">
         {mobileTab === 'chat' && (
           <div className="fixed inset-x-0 top-14 bottom-14 z-20 bg-slate-900">

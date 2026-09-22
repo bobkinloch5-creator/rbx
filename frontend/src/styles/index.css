@@ -4,17 +4,17 @@
 
 @layer base {
   body {
-    @apply bg-roblox-darker text-white font-sans;
+    @apply bg-roblox-darker text-white font-sans antialiased;
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
   
   .btn-primary {
-    @apply bg-roblox-red hover:bg-roblox-red/90 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105;
+    @apply bg-gradient-to-r from-roblox-red to-red-600 hover:from-roblox-red hover:to-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl;
   }
   
   .btn-secondary {
@@ -49,6 +49,20 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-roblox-red to-orange-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-roblox-red via-orange-500 to-yellow-500;
   }
+}
+
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
 }

@@ -70,6 +70,11 @@ export const assetsService = {
 };
 
 export const pluginService = {
+  queueCommand: async (command: any): Promise<any> => {
+    const response = await api.post('/plugin/command', command);
+    return response.data;
+  },
+
   verifySession: async (sessionId: string, secret: string): Promise<any> => {
     const response = await api.post('/plugin/verify', { sessionId, secret });
     return response.data;

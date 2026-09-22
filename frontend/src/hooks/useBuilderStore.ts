@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { wsService } from '../lib/websocket';
-import { aiService, AIMessage } from '../lib/api';
+import { aiService, pluginService, AIMessage } from '../lib/api';
 
 interface RobloxInstance {
   ClassName: string;
@@ -86,7 +85,9 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       console.error('No active session');
       return;
     }
-    wsService.sendBuildCommand({ ...command, sessionId });
+    pluginService.queueCommand({ ...command, sessionId }).catch((error) => {
+      console.error('Failed to queue plugin command:', error);
+    });
   },
   
   sendAIMessage: async (content: string) => {

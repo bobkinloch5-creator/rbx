@@ -7,7 +7,7 @@ local RunService = game:GetService("RunService")
 local TestRunner = {}
 
 -- Configuration
-local SERVER_URL = "https://YOUR-BACKEND-DOMAIN.example.com"
+local SERVER_URL = "https://rbx-frontend1.vercel.app"
 
 -- Collect all test errors from output
 local testErrors = {}

@@ -3,6 +3,7 @@ import {
   getActiveSession,
   getAllActiveSessions,
   registerPluginSession,
+  queueBuildCommand,
   takeBuildCommands,
   updateProjectStructure
 } from '../services/websocket.js';
@@ -37,6 +38,18 @@ pluginRouter.post('/sync', async (req, res) => {
   const { sessionId, structure } = req.body as { sessionId?: string; structure?: ProjectStructure };
   if (!sessionId || !structure) return res.status(400).json({ error: 'sessionId and structure are required' });
   if (!updateProjectStructure(sessionId, structure)) return res.status(404).json({ error: 'Session not found' });
+  res.json({ success: true });
+});
+
+pluginRouter.post('/command', async (req, res) => {
+  const command = req.body as { sessionId?: string; type?: string; [key: string]: unknown };
+  if (!command.sessionId || !command.type) {
+    return res.status(400).json({ error: 'sessionId and type are required' });
+  }
+  if (!getActiveSession(command.sessionId)) {
+    return res.status(404).json({ error: 'Session not found' });
+  }
+  queueBuildCommand(command as any);
   res.json({ success: true });
 });
 

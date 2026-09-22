@@ -37,6 +37,11 @@ pluginRouter.post('/verify', async (req, res) => {
 pluginRouter.post('/sync', async (req, res) => {
   const { sessionId, structure } = req.body as { sessionId?: string; structure?: ProjectStructure };
   if (!sessionId || !structure) return res.status(400).json({ error: 'sessionId and structure are required' });
+  // Auto-register session if it doesn't exist yet
+  if (!getActiveSession(sessionId)) {
+    registerPluginSession(sessionId, `studio-${Date.now()}`);
+    logger.info(`Auto-registered session from sync: ${sessionId}`);
+  }
   if (!updateProjectStructure(sessionId, structure)) return res.status(404).json({ error: 'Session not found' });
   res.json({ success: true });
 });
@@ -54,9 +59,14 @@ pluginRouter.post('/command', async (req, res) => {
 });
 
 pluginRouter.get('/commands/:sessionId', async (req, res) => {
-  const session = getActiveSession(req.params.sessionId);
-  if (!session) return res.status(404).json({ error: 'Session not found' });
-  res.json({ commands: takeBuildCommands(req.params.sessionId) });
+  const { sessionId } = req.params;
+  // Auto-register session if plugin polls before web app creates it
+  let session = getActiveSession(sessionId);
+  if (!session) {
+    session = registerPluginSession(sessionId, `studio-${Date.now()}`);
+    logger.info(`Auto-registered plugin session via polling: ${sessionId}`);
+  }
+  res.json({ commands: takeBuildCommands(sessionId) });
 });
 
 pluginRouter.post('/result', async (req, res) => {

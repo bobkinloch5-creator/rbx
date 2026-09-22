@@ -1,15 +1,25 @@
 {
   "version": 2,
-  "buildCommand": "npm run build --workspace=frontend",
+  "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
-  "rewrites": [
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 30,
+      "includeFiles": "backend/src/**"
+    }
+  },
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.ts"
+      "src": "/api/(.*)",
+      "dest": "/api/index.ts"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/health",
+      "dest": "/api/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }

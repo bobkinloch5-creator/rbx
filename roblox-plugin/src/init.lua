@@ -8,7 +8,7 @@ local RunService = game:GetService("RunService")
 
 -- Configuration
 local CONFIG = {
-	-- Replace this with the public URL of your deployed backend.
+	-- Primary: use the deployed Vercel URL. Update if you redeploy.
 	SERVER_URL = "https://rbx-frontend1.vercel.app",
 	WS_POLL_INTERVAL = 0.5,
 	PLUGIN_SECRET = "roblox-ai-builder-secure-2024",

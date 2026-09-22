@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Grid, Box, Sphere, Cylinder } from '@react-three/drei';
+import { OrbitControls, Grid, Box, Cylinder } from '@react-three/drei';
 import { useBuilderStore } from '../../hooks/useBuilderStore';
 import { Box as CubeIcon } from 'lucide-react';
 

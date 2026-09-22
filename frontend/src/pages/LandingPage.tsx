@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, 
   Code2, 
   Zap, 
+  Brain,
+  TestTube2,
   ArrowRight,
   MessageSquare,
   Box,
+  Boxes,
   FileCode,
   Search
 } from 'lucide-react';
